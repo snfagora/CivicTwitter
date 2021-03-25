@@ -1,0 +1,17 @@
+Package: CivicTwitter
+Type: Package
+Title: Use The Academic Twitter API v2
+Version: 0.1.0
+Author: Milan de Vries <milan@milandevries.org>
+Maintainer: Milan de Vries <milan@milandevries.org>
+Description: Functions to help study civic organizations that are on Twitter.
+    This includes functions to use the Twitter API v2
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    httr,
+    tidyjson,
+    dplyr,
+    tidyr
+RoxygenNote: 7.1.1
