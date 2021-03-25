@@ -164,8 +164,8 @@ json_followers_to_df <- function(res) {
 #' @return A dataframe
 #'
 #' @importFrom httr GET
-#' @importFrom hrr content
-#' @importFrom add_headers
+#' @importFrom httr content
+#' @importFrom httr add_headers
 #' @export
 get_user_timeline <- function(user.id, since.id, start.time, end.time) {
 
@@ -192,8 +192,8 @@ get_user_timeline <- function(user.id, since.id, start.time, end.time) {
 #' @return A dataframe
 #'
 #' @importFrom httr GET
-#' @importFrom hrr content
-#' @importFrom add_headers
+#' @importFrom httr content
+#' @importFrom httr add_headers
 get_timeline <- function(user.id, since.id, start.time, end.time) {
 
   if(!missing(since.id)) {
