@@ -32,7 +32,7 @@ df <- get_user_by_id("13205222")
 df <- get_user_followers("1164992903468343297")
 ```
 
-### Get user timeline tweets
+#### Get user timeline tweets
 
 ```r
 ## optional parameters for since.id, start.time, and end.time
