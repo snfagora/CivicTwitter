@@ -8,6 +8,12 @@ get_timeline(user.id, since.id, start.time, end.time)
 }
 \arguments{
 \item{user.id}{A Twitter user_id}
+
+\item{since.id}{A tweet id. Function then retrieves tweets more recent then that id}
+
+\item{start.time}{YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)}
+
+\item{end.time}{YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)}
 }
 \value{
 A dataframe
