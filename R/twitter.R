@@ -178,7 +178,7 @@ get_user_timeline <- function(user.id, since.id, start.time, end.time) {
   df <- json_tweets_to_df(this_res)
 
   while (!is.null(this_res$meta$next_token)) {
-    next_token <- this_res$meta_next_token
+    next_token <- this_res$meta$next_token
     check_rate_limit("timeline")
     this_res <- get_following(user.id,this_res$meta$next_token)
     this_df <- json_tweets_to_df(this_res)
@@ -237,7 +237,7 @@ get_timeline <- function(user.id, since.id, start.time, end.time) {
 json_tweets_to_df <- function(res) {
   df <- res$data %>% spread_all %>% select(document.id,id, author_id, created_at, text, source) %>% as_tibble
   pmetrics <- res$data %>% enter_object(public_metrics) %>% spread_all %>% as_tibble
-  df <- df %>% left_join(pmetrics) %>% select(-document.id)
+
 
   return(df)
 }
