@@ -180,7 +180,7 @@ get_user_timeline <- function(user.id, since.id, start.time, end.time) {
   while (!is.null(this_res$meta$next_token)) {
     next_token <- this_res$meta_next_token
     check_rate_limit("timeline")
-    this_res <- get_following(user.id,res$meta$next_token)
+    this_res <- get_following(user.id,this_res$meta$next_token)
     this_df <- json_tweets_to_df(this_res)
 
     df <- rbind(df,this_df)
@@ -278,6 +278,8 @@ rate_limits <- function() {
 #' @param threshold The remaining API calls below which to force a System Sleep.
 #'
 #' @return No object returned
+#'
+#' @importFrom dplyr filter
 check_rate_limit <- function(rsrc, threshold=2) {
   rl <- rate_limits()
 
