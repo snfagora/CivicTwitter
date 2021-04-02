@@ -4,10 +4,12 @@
 \alias{get_timeline}
 \title{Helper function for get_user_timeline}
 \usage{
-get_timeline(user.id, since.id, start.time, end.time)
+get_timeline(user.id, next_token, since.id, start.time, end.time)
 }
 \arguments{
 \item{user.id}{A Twitter user_id}
+
+\item{next_token}{A pagination token from a previous API call.}
 
 \item{since.id}{A tweet id. Function then retrieves tweets more recent then that id}
 

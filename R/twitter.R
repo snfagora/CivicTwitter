@@ -180,7 +180,7 @@ get_user_timeline <- function(user.id, since.id, start.time, end.time) {
   while (!is.null(this_res$meta$next_token)) {
     next_token <- this_res$meta$next_token
     check_rate_limit("timeline")
-    this_res <- get_following(user.id,this_res$meta$next_token)
+    this_res <- get_timeline(user.id,this_res$meta$next_token)
     this_df <- json_tweets_to_df(this_res)
 
     df <- rbind(df,this_df)
@@ -193,6 +193,7 @@ get_user_timeline <- function(user.id, since.id, start.time, end.time) {
 #' Helper function for get_user_timeline
 #'
 #' @param user.id A Twitter user_id
+#' @param next_token A pagination token from a previous API call.
 #' @param since.id A tweet id. Function then retrieves tweets more recent then that id
 #' @param start.time YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)
 #' @param end.time YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)
@@ -202,7 +203,7 @@ get_user_timeline <- function(user.id, since.id, start.time, end.time) {
 #' @importFrom httr GET
 #' @importFrom httr content
 #' @importFrom httr add_headers
-get_timeline <- function(user.id, since.id, start.time, end.time) {
+get_timeline <- function(user.id, next_token, since.id, start.time, end.time) {
 
   if(!missing(since.id)) {
 
@@ -214,6 +215,11 @@ get_timeline <- function(user.id, since.id, start.time, end.time) {
     "expansions" = "geo.place_id",
     "place.fields"="contained_within,country,country_code,full_name,geo,id,name,place_type"
     )
+
+  if (!missing(next_token)) {
+    params[["pagination_token"]] <- next_token
+  }
+
 
   url <- paste0("https://api.twitter.com/2/users/",user.id,"/tweets")
 
