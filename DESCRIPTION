@@ -19,6 +19,7 @@ LazyData: true
 Imports: 
     httr,
     tidyjson,
+    tibble,
     dplyr,
     tidyr,
     magrittr
