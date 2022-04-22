@@ -116,6 +116,7 @@ get_user_following <- function(user.id) {
 #' @export
 get_following <- function(user.id, next_token) {
 
+  headers <- set_bearer_token(bearer_token)
   params = list(
     "max_results" = 1000,
     "user.fields" = "created_at,description,entities,pinned_tweet_id,public_metrics,url,verified"
