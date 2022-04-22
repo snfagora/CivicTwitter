@@ -130,7 +130,7 @@ get_following <- function(user.id, next_token) {
   res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)
   
   # check for rate limit here. maybe more elegant to make this a while loop.
-  waited <- check_rate_limit_header(httr::headers(res))
+  waited <- check_rate_limit_header(res)
   if (waited) {
     res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
   }
