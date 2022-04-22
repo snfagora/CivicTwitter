@@ -113,6 +113,7 @@ get_user_following <- function(user.id) {
 #' @param user.id A Twitter user_id
 #' @param next_token A pagination token from a previous API call.
 #' @return A JSON object returned by the Twitter API
+#' @export
 get_following <- function(user.id, next_token) {
 
   params = list(
@@ -325,11 +326,12 @@ check_rate_limit <- function(rsrc, threshold=2) {
 #'
 #' @importFrom dplyr filter
 #' @importFrom httr headers
+#' @export
 check_rate_limit_header <- function(res, threshold=2) {
   rl <- httr::headers(res)
   
   reset.at <- rl$`x-rate-limit-reset`
-  reset.sec <- as.numeric(httr::headers(res)$`x-rate-limit-reset`) - as.numeric(Sys.time())
+  reset.sec <- as.numeric(rl$`x-rate-limit-reset`) - as.numeric(Sys.time())
 
   # should error check here that rl has one row now
   waited <- 0
