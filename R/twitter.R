@@ -91,12 +91,12 @@ json_user_to_df <- function(res) {
 #' @export
 get_user_following <- function(user.id) {
 
-  check_rate_limit("following")
+  #check_rate_limit("following")
   this_res <- get_following(user.id)
   df <- json_following_to_df(this_res)
 
   while (!is.null(this_res$meta$next_token)) {
-    check_rate_limit("following")
+    #check_rate_limit("following")
     this_res <- get_following(user.id,this_res$meta$next_token)
     this_df <- json_following_to_df(this_res)
 
@@ -128,6 +128,13 @@ get_following <- function(user.id, next_token) {
   url <- paste0("https://api.twitter.com/2/users/",user.id,"/following")
 
   res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)
+  
+  # check for rate limit here. maybe more elegant to make this a while loop.
+  waited <- check_rate_limit_header(httr::headers(res))
+  if (waited) {
+    res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
+  }
+  
   res <- httr::content(res)
   return(res)
 
@@ -307,5 +314,32 @@ check_rate_limit <- function(rsrc, threshold=2) {
   }
 
   return(rl)
+}
+
+#' Check Rate Limit Status and Sleep If Need Be - this is an updated function for API v2.0
+#'
+#' @param res The result of an httr call to the twitter API.
+#'
+#' @return binary indicator of whether the API calls had to wait
+#'
+#' @importFrom dplyr filter
+#' @importFrom httr headers
+check_rate_limit_header <- function(res) {
+  rl <- httr::headers(res)
+  
+  reset.at <- rl$`x-rate-limit-reset`
+  reset.sec <- as.numeric(httr::headers(res)$`x-rate-limit-reset`) - as.numeric(Sys.time())
+
+  # should error check here that rl has one row now
+  if (rl$`x-rate-limit-remaining` < threshold) {
+    cat(paste0("Approaching API threshould for this resource. Sleeping for ", reset,sec, "seconds..."))
+    Sys.sleep(as.numeric(reset.sec))
+    cat("continuing!\n")
+    waited <- 1
+  } else {
+    waited <- 9
+  }
+
+  return(waited)
 }
 
