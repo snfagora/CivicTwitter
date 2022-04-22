@@ -319,26 +319,26 @@ check_rate_limit <- function(rsrc, threshold=2) {
 #' Check Rate Limit Status and Sleep If Need Be - this is an updated function for API v2.0
 #'
 #' @param res The result of an httr call to the twitter API.
+#' @param threshold The remaining API calls below which to force a System Sleep.
 #'
 #' @return binary indicator of whether the API calls had to wait
 #'
 #' @importFrom dplyr filter
 #' @importFrom httr headers
-check_rate_limit_header <- function(res) {
+check_rate_limit_header <- function(res, threshold=2) {
   rl <- httr::headers(res)
   
   reset.at <- rl$`x-rate-limit-reset`
   reset.sec <- as.numeric(httr::headers(res)$`x-rate-limit-reset`) - as.numeric(Sys.time())
 
   # should error check here that rl has one row now
+  waited <- 0
   if (rl$`x-rate-limit-remaining` < threshold) {
     cat(paste0("Approaching API threshould for this resource. Sleeping for ", reset,sec, "seconds..."))
     Sys.sleep(as.numeric(reset.sec))
     cat("continuing!\n")
     waited <- 1
-  } else {
-    waited <- 9
-  }
+  } 
 
   return(waited)
 }

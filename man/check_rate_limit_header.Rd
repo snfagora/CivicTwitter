@@ -4,10 +4,12 @@
 \alias{check_rate_limit_header}
 \title{Check Rate Limit Status and Sleep If Need Be - this is an updated function for API v2.0}
 \usage{
-check_rate_limit_header(res)
+check_rate_limit_header(res, threshold = 2)
 }
 \arguments{
 \item{res}{The result of an httr call to the twitter API.}
+
+\item{threshold}{The remaining API calls below which to force a System Sleep.}
 }
 \value{
 binary indicator of whether the API calls had to wait
