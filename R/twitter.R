@@ -131,7 +131,7 @@ get_following <- function(user.id, next_token) {
   
   # check for rate limit here. maybe more elegant to make this a while loop.
   waited <- check_rate_limit_header(res)
-  if (waited) {
+  if (waited==1) {
     res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
   }
   
@@ -333,8 +333,8 @@ check_rate_limit_header <- function(res, threshold=2) {
 
   # should error check here that rl has one row now
   waited <- 0
-  if (rl$`x-rate-limit-remaining` < threshold) {
-    cat(paste0("Approaching API threshould for this resource. Sleeping for ", reset,sec, "seconds..."))
+  if (as.numeric(rl$`x-rate-limit-remaining`) < threshold) {
+    cat(paste0("Approaching API threshould for this resource. Sleeping for ", reset.sec, "seconds..."))
     Sys.sleep(as.numeric(reset.sec))
     cat("continuing!\n")
     waited <- 1
