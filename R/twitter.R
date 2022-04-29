@@ -42,6 +42,12 @@ get_user_by_username <- function(username) {
   url <- paste0("https://api.twitter.com/2/users/by/username/",username,"?user.fields=",user.fields)
 
   res <- httr::GET(url, httr::add_headers(.headers=headers))
+
+  waited <- check_rate_limit_header(res)
+  if (waited==1) {
+    res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
+  }
+
   res <- httr::content(res)
 
   df <- json_user_to_df(res)
@@ -130,13 +136,13 @@ get_following <- function(user.id, next_token) {
   url <- paste0("https://api.twitter.com/2/users/",user.id,"/following")
 
   res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)
-  
+
   # check for rate limit here. maybe more elegant to make this a while loop.
   waited <- check_rate_limit_header(res)
   if (waited==1) {
     res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
   }
-  
+
   res <- httr::content(res)
   return(res)
 
@@ -330,7 +336,7 @@ check_rate_limit <- function(rsrc, threshold=2) {
 #' @export
 check_rate_limit_header <- function(res, threshold=2) {
   rl <- httr::headers(res)
-  
+
   reset.at <- rl$`x-rate-limit-reset`
   reset.sec <- as.numeric(rl$`x-rate-limit-reset`) - as.numeric(Sys.time())
 
@@ -341,7 +347,7 @@ check_rate_limit_header <- function(res, threshold=2) {
     Sys.sleep(as.numeric(reset.sec))
     cat("continuing!\n")
     waited <- 1
-  } 
+  }
 
   return(waited)
 }
