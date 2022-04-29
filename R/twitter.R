@@ -41,7 +41,8 @@ get_user_by_username <- function(username) {
 
   url <- paste0("https://api.twitter.com/2/users/by/username/",username,"?user.fields=",user.fields)
 
-  res <- httr::GET(url, httr::add_headers(.headers=headers))
+  headers <- set_bearer_token(bearer_token)
+    res <- httr::GET(url, httr::add_headers(.headers=headers))
 
   waited <- check_rate_limit_header(res)
   if (waited==1) {
