@@ -23,7 +23,14 @@ get_user_by_id <- function(user.id) {
 
   url <- paste0("https://api.twitter.com/2/users/",user.id,"?user.fields=",user.fields)
 
+  headers <- set_bearer_token(bearer_token)
   res <- httr::GET(url, httr::add_headers(.headers=headers))
+
+  waited <- check_rate_limit_header(res)
+  if (waited==1) {
+    res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
+  }
+
   res <- httr::content(res)
 
   df <- json_user_to_df(res)
@@ -42,7 +49,7 @@ get_user_by_username <- function(username) {
   url <- paste0("https://api.twitter.com/2/users/by/username/",username,"?user.fields=",user.fields)
 
   headers <- set_bearer_token(bearer_token)
-    res <- httr::GET(url, httr::add_headers(.headers=headers))
+  res <- httr::GET(url, httr::add_headers(.headers=headers))
 
   waited <- check_rate_limit_header(res)
   if (waited==1) {
