@@ -2,9 +2,11 @@
 
 export("%>%")
 export(check_rate_limit_header)
+export(get_followers)
 export(get_following)
 export(get_user_by_id)
 export(get_user_by_username)
+export(get_user_followers)
 export(get_user_following)
 export(get_user_timeline)
 export(json_user_to_df)

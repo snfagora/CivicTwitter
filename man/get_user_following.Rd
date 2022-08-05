@@ -2,7 +2,7 @@
 % Please edit documentation in R/twitter.R
 \name{get_user_following}
 \alias{get_user_following}
-\title{Get list of accounts following a user}
+\title{Get list of accounts a user is following}
 \usage{
 get_user_following(user.id)
 }

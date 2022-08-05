@@ -90,7 +90,7 @@ json_user_to_df <- function(res) {
 	return(df)
 }
 
-#' Get list of accounts following a user
+#' Get list of accounts a user is following
 #'
 #' This calls get_following itteratively if pagination is needed
 #'
@@ -133,7 +133,7 @@ get_following <- function(user.id, next_token) {
   headers <- set_bearer_token(bearer_token)
   params = list(
     "max_results" = 1000,
-    "user.fields" = "created_at,description,entities,pinned_tweet_id,public_metrics,url,verified"
+    "user.fields" = "created_at,description,entities,location,pinned_tweet_id,public_metrics,url,verified"
     #"expansions" = "pinned_tweet_id"
     )
 
@@ -157,6 +157,78 @@ get_following <- function(user.id, next_token) {
 
 }
 
+#' Get list of accounts following a user
+#'
+#' This calls get_followers itteratively if pagination is needed
+#'
+#' @param user.id The Twitter user_id of the account whose following you want to find
+#' @param max.pages The maximum number of pages of results to query. Each page returns 1000 users
+#'
+#' @return A dataframe
+#'
+#' @examples
+#' \dontrun{
+#'   get_user_followers("13205222")
+#' }
+#' @export
+get_user_followers <- function(user.id, max.pages=100) {
+  cur.page <- 1
+
+  #check_rate_limit("following")
+  this_res <- get_followers(user.id)
+  df <- json_following_to_df(this_res)
+
+  while (!is.null(this_res$meta$next_token) & cur.page <= max.pages) {
+    #check_rate_limit("following")
+    this_res <- get_followers(user.id,this_res$meta$next_token)
+    this_df <- json_following_to_df(this_res)
+
+    df <- rbind(df,this_df)
+    cur.page <- cur.page + 1
+  }
+
+  return(df)
+}
+
+
+#' Helper function for get_user_followers
+#'
+#' This gets called with pagination by get_user_followers
+#'
+#' @param user.id A Twitter user_id
+#' @param next_token A pagination token from a previous API call.
+#' @return A JSON object returned by the Twitter API
+#' @export
+get_followers <- function(user.id, next_token) {
+
+  headers <- set_bearer_token(bearer_token)
+  params = list(
+    "max_results" = 1000,
+    "user.fields" = "created_at,description,location,entities,pinned_tweet_id,public_metrics,url,verified"
+    #"expansions" = "pinned_tweet_id"
+  )
+
+  if (!missing(next_token)) {
+    params[["pagination_token"]] <- next_token
+  }
+
+  url <- paste0("https://api.twitter.com/2/users/",user.id,"/followers")
+
+  res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)
+
+  # check for rate limit here. maybe more elegant to make this a while loop.
+  waited <- check_rate_limit_header(res)
+  if (waited==1) {
+    res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
+  }
+
+  res <- httr::content(res)
+  return(res)
+}
+
+
+
+
 #' Turn JSON list of users into a tidy dataframe
 #'
 #' @param res A json object returned by the Twitter API with info about a users following
@@ -170,7 +242,7 @@ get_following <- function(user.id, next_token) {
 #' @importFrom dplyr left_join
 #' @importFrom dplyr select
 json_following_to_df <- function(res) {
-	df <- res$data %>% spread_all %>% select(document.id,id,name,username,description,pinned_tweet_id,verified,created_at) %>% as_tibble
+	df <- res$data %>% spread_all %>% select(document.id,id,name,username,description,location,pinned_tweet_id,verified,created_at) %>% as_tibble
 	pmetrics <- res$data %>% enter_object(public_metrics) %>% spread_all %>% as_tibble
 	urls <- res$data %>% enter_object(entities) %>% enter_object(url) %>% enter_object(urls) %>% gather_array %>% spread_all %>% as_tibble %>% select(document.id,expanded_url)
 
