@@ -268,7 +268,6 @@ json_following_to_df <- function(res) {
 #' @export
 get_user_timeline <- function(user.id, since.id, start.time, end.time) {
 
-  check_rate_limit("timeline")
   this_res <- get_timeline(user.id, since.id, start.time, end.time)
   df <- json_tweets_to_df(this_res)
 
@@ -318,16 +317,23 @@ get_timeline <- function(user.id, next_token, since.id, start.time, end.time) {
   }
 
   if(!missing(start.time)) {
-    params[["start.time"]] <- start.time
+    params[["start_time"]] <- start.time
   }
 
   if(!missing(end.time)) {
-    params[["end.time"]] <- end.time
+    params[["end_time"]] <- end.time
   }
 
   url <- paste0("https://api.twitter.com/2/users/",user.id,"/tweets")
 
   res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)
+
+  # check for rate limit here. maybe more elegant to make this a while loop.
+  waited <- check_rate_limit_header(res)
+  if (waited==1) {
+    res <- httr::GET(url, httr::add_headers(.headers=headers),query=params)  # resend last request
+  }
+
   res <- httr::content(res)
   return(res)
 }
