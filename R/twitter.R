@@ -268,7 +268,18 @@ json_following_to_df <- function(res) {
 #' @export
 get_user_timeline <- function(user.id, since.id, start.time, end.time) {
 
-  this_res <- get_timeline(user.id, since.id, start.time, end.time)
+  if(!missing(start.time)) {
+    this_res <- get_timeline(user.id, start.time=start.time, end.time=end.time)
+  }
+
+  if (!missing(since.id)) {
+    this_res <- get_timeline(user.id, since.id=since.id)
+  }
+
+  if (missing(since.id) & missing(start.time) & missing(end.time)) {
+    this_res <- get_timeline(user.id)
+  }
+
   df <- json_tweets_to_df(this_res)
 
   while (!is.null(this_res$meta$next_token)) {
@@ -354,6 +365,7 @@ json_tweets_to_df <- function(res) {
   df <- res$data %>% spread_all %>% select(document.id,id, author_id, created_at, text, source) %>% as_tibble
   pmetrics <- res$data %>% enter_object(public_metrics) %>% spread_all %>% as_tibble
 
+  df <- df %>% left_join(pmetrics) %>% select(-document.id)
 
   return(df)
 }
