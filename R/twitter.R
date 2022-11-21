@@ -300,9 +300,7 @@ get_user_timeline <- function(user.id, since.id, start.time, end.time) {
 #' @importFrom httr add_headers
 get_timeline <- function(user.id, next_token, since.id, start.time, end.time) {
 
-  if(!missing(since.id)) {
-
-  }
+  headers <- set_bearer_token(bearer_token)
 
   params = list(
     "max_results" = 100,
@@ -311,10 +309,21 @@ get_timeline <- function(user.id, next_token, since.id, start.time, end.time) {
     "place.fields"="contained_within,country,country_code,full_name,geo,id,name,place_type"
     )
 
+  if(!missing(since.id)) {
+    params[["since.id"]] <- since.id
+  }
+
   if (!missing(next_token)) {
     params[["pagination_token"]] <- next_token
   }
 
+  if(!missing(start.time)) {
+    params[["start.time"]] <- start.time
+  }
+
+  if(!missing(end.time)) {
+    params[["end.time"]] <- end.time
+  }
 
   url <- paste0("https://api.twitter.com/2/users/",user.id,"/tweets")
 
